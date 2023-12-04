@@ -81,12 +81,4 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green", "8", "2286"),
 
         return total.ToString();
     }
-
-    private (string, int) ParseCubeInfo(string info)
-    {
-        string[] cubeParts = info.Split(" ");
-        int count = int.Parse(cubeParts[0]);
-        string colour = cubeParts[1];
-        return (colour, count);
-    }
 }
