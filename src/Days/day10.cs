@@ -47,16 +47,15 @@ L--J.L7...LJS7F-7L7.
         ]
     ) {}
 
-    private record Point(int X, int Y)
-    {
-        public Point AddPoint(Point other)
-        {
-            return new Point(X + other.X, Y + other.Y);
-        }
-    }
-
     private class Tile
     {
+        private static Dictionary<int, Point> DirectionVectors = new Dictionary<int, Point>{
+            { 0, new Point(0, -1) },
+            { 1, new Point(1, 0) },
+            { 2, new Point(0, 1) },
+            { 3, new Point(-1, 0) },
+        };
+
         public Point Location { get; init; }
         public char TileType { get; init; }
         private bool[] Connections { get; init; }
@@ -95,20 +94,10 @@ L--J.L7...LJS7F-7L7.
 
         public List<Point> GetConnectedNeighbours()
         {
-            List<Point> neighbours = new List<Point>();
-            if (Connections[0]) {
-                neighbours.Add(Location.AddPoint(new Point(0, -1)));
-            }
-            if (Connections[1]) {
-                neighbours.Add(Location.AddPoint(new Point(1, 0)));
-            }
-            if (Connections[2]) {
-                neighbours.Add(Location.AddPoint(new Point(0, 1)));
-            }
-            if (Connections[3]) {
-                neighbours.Add(Location.AddPoint(new Point(-1, 0)));
-            }
-            return neighbours;
+            return Connections.Select((bool connected, int index) => (connected, index))
+                .Where(val => val.connected)
+                .Select(val => Location.AddPoint(DirectionVectors[val.index]))
+                .ToList();
         }
 
         public override string ToString()
@@ -123,6 +112,11 @@ L--J.L7...LJS7F-7L7.
         return (GetLoopPoints(tileMap, start).Count / 2).ToString();
     }
 
+    private static Point MoveDirection = new Point(0, -1);
+    
+    // No need to handle 'S' as actual value is '|' for my input
+    private static HashSet<char> TileTypesToCount = ['-', '7', 'J'];
+
     protected override string SolvePartTwo(string input) {
         (Dictionary<Point, Tile> tileMap, Point start) = BuildTileMap(input);
 
@@ -134,35 +128,18 @@ L--J.L7...LJS7F-7L7.
                     return false;
                 }
 
-                List<char> routeToEdge = [];
-                int leftCount = 0;
-                int rightCount = 0;
-                int acrossCount = 0;
+                int count = 0;
 
-                Point p = point.AddPoint(new Point(0, -1));
+                Point p = point.AddPoint(MoveDirection);
                 while (tileMap.ContainsKey(p)) {
                     char tileType = tileMap[p].TileType;
-                    if (loop.Contains(p) && tileMap[p].TileType != '|') {
-                        routeToEdge.Add(tileMap[p].TileType);
-
-                        switch (tileType) {
-                            case '-':
-                                acrossCount += 1;
-                                break;
-                            case '7':
-                            case 'J':
-                                leftCount += 1;
-                                break;
-                            case 'F':
-                            case 'L':
-                                rightCount += 1;
-                                break;
-                        }
+                    if (loop.Contains(p) && TileTypesToCount.Contains(tileMap[p].TileType)) {
+                        count += 1;
                     }
-                    p = p.AddPoint(new Point(0, -1));
+                    p = p.AddPoint(MoveDirection);
                 }
 
-                return (Math.Abs(Math.Min(leftCount, rightCount)) + acrossCount) % 2 == 1;
+                return count % 2 == 1;
             }).Count().ToString();
     }
     

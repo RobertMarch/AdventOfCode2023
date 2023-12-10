@@ -2,8 +2,6 @@ namespace AdventOfCode;
 
 public class Day03 : BaseDay
 {
-    private record Point(int X, int Y);
-
     public Day03() : base(
         3,
         [
