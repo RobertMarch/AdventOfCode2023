@@ -13,6 +13,7 @@ Dictionary<int, BaseDay> dayMap = new Dictionary<int, BaseDay>
     { 8, new Day08() },
     { 9, new Day09() },
     { 10, new Day10() },
+    // New days here
 };
 
 int dayNumber;
