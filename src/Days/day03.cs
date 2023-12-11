@@ -82,8 +82,8 @@ public class Day03 : BaseDay
 
     private List<Point> GetPointsToCheck(Point partNumberStart, int partNumberValue) {
         List<Point> points = new List<Point>();
-        for (int x = partNumberStart.X - 1; x <= partNumberStart.X + partNumberValue.ToString().Length; x++) {
-            for (int y = partNumberStart.Y - 1; y <= partNumberStart.Y + 1; y++) {
+        for (long x = partNumberStart.X - 1; x <= partNumberStart.X + partNumberValue.ToString().Length; x++) {
+            for (long y = partNumberStart.Y - 1; y <= partNumberStart.Y + 1; y++) {
                 points.Add(new Point(x, y));
             }
         }
