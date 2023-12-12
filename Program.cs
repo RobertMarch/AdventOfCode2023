@@ -14,13 +14,14 @@ Dictionary<int, BaseDay> dayMap = new Dictionary<int, BaseDay>
     { 9, new Day09() },
     { 10, new Day10() },
     { 11, new Day11() },
+    { 12, new Day12() },
     // New days here
 };
 
 int dayNumber;
 
 if (args.Length < 2 || !int.TryParse(args[1], out dayNumber)) {
-    dayNumber = 11;
+    dayNumber = 12;
     Console.WriteLine("Could not get day number from args, defaulting to ", dayNumber);
 }
 

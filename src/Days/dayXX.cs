@@ -5,11 +5,13 @@ public class DayXX : BaseDay
     public DayXX() : base(0, GetTestCases())
     {}
 
-    protected override string SolvePartOne(string input) {
+    protected override string SolvePartOne(string input)
+    {
         return "Not yet implemented";
     }
 
-    protected override string SolvePartTwo(string input) {
+    protected override string SolvePartTwo(string input)
+    {
         return "Not yet implemented";
     }
 
