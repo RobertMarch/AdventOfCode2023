@@ -15,20 +15,65 @@ Dictionary<int, BaseDay> dayMap = new Dictionary<int, BaseDay>
     { 10, new Day10() },
     { 11, new Day11() },
     { 12, new Day12() },
+    { 13, new Day13() },
     // New days here
 };
 
 int dayNumber;
+Runner.Parts parts = Runner.Parts.BOTH;
+Runner.InputType inputType = Runner.InputType.BOTH;
 
 if (args.Length < 2 || !int.TryParse(args[1], out dayNumber)) {
-    dayNumber = 12;
+    dayNumber = 13;
     Console.WriteLine("Could not get day number from args, defaulting to ", dayNumber);
+}
+
+if (args.Length > 2) {
+    parts = (Runner.Parts) Enum.Parse(typeof(Runner.Parts), args[2].ToUpper());
+}
+
+if (args.Length > 3) {
+    inputType = (Runner.InputType) Enum.Parse(typeof(Runner.InputType), args[3].ToUpper());
 }
 
 BaseDay day = dayMap[dayNumber];
 
-day.SolvePartOneTestCases();
-Console.WriteLine(day.SolvePartOneFromFile());
+if (parts != Runner.Parts.TWO)
+{
+    if (inputType != Runner.InputType.PUZZLE)
+    {
+        day.SolvePartOneTestCases();
+    }
+    if (inputType != Runner.InputType.EXAMPLE)
+    {
+        Console.WriteLine(day.SolvePartOneFromFile());
+    }
+}
 
-day.SolvePartTwoTestCases();
-Console.WriteLine(day.SolvePartTwoFromFile());
+if (parts != Runner.Parts.ONE)
+{
+    if (inputType != Runner.InputType.PUZZLE)
+    {
+        day.SolvePartTwoTestCases();
+    }
+    if (inputType != Runner.InputType.EXAMPLE)
+    {
+        Console.WriteLine(day.SolvePartTwoFromFile());
+    }
+}
+
+
+namespace Runner
+{
+    enum Parts {
+        ONE,
+        TWO,
+        BOTH,
+    }
+
+    enum InputType {
+        EXAMPLE,
+        PUZZLE,
+        BOTH,
+    }
+}
