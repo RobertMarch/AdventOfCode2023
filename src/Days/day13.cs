@@ -8,18 +8,24 @@ public class Day13 : BaseDay
     protected override string SolvePartOne(string input)
     {
         return input.Split(new string[] {"\r\n\r\n", "\r\r", "\n\n"}, StringSplitOptions.None)
-            .Select(CalculateLineOfReflectionSummaryValue)
+            .Select(block => CalculateLineOfReflectionSummaryValue(block, 0))
             .Sum()
             .ToString();
     }
 
-    private long CalculateLineOfReflectionSummaryValue(string input)
+    protected override string SolvePartTwo(string input)
+    {
+        return input.Split(new string[] {"\r\n\r\n", "\r\r", "\n\n"}, StringSplitOptions.None)
+            .Select(block => CalculateLineOfReflectionSummaryValue(block, 1))
+            .Sum()
+            .ToString();
+    }
+
+    private long CalculateLineOfReflectionSummaryValue(string input, long smudgeCount)
     {
         List<string> lines = SplitStringToLines(input);
 
-        long result = CalculateLineOfReflection(lines) * 100 + CalculateLineOfReflection(FlipString(lines));
-        Console.WriteLine($"{result}");
-        return result;
+        return CalculateLineOfReflection(lines, smudgeCount) * 100 + CalculateLineOfReflection(FlipString(lines), smudgeCount);
     }
 
     private List<string> FlipString(List<string> initialLines)
@@ -32,23 +38,20 @@ public class Day13 : BaseDay
         return newLines;
     }
 
-    private long CalculateLineOfReflection(List<string> lines)
+    private long CalculateLineOfReflection(List<string> lines, long smudgeCount)
     {
         for (int mirrorLine = 1; mirrorLine < lines.Count; mirrorLine++)
         {
-            bool isMirror = true;
+            long smudgesRequired = 0;
             for (int checkIndex = 0; checkIndex < mirrorLine; checkIndex++)
             {
                 if (mirrorLine + checkIndex > lines.Count - 1)
                 {
                     break;
                 }
-                if (lines[mirrorLine - checkIndex - 1] != lines[mirrorLine + checkIndex])
-                {
-                    isMirror = false;
-                }
+                smudgesRequired += GetStringDifference(lines[mirrorLine - checkIndex - 1], lines[mirrorLine + checkIndex]);
             }
-            if (isMirror)
+            if (smudgesRequired == smudgeCount)
             {
                 return mirrorLine;
             }
@@ -57,9 +60,11 @@ public class Day13 : BaseDay
         return 0;
     }
 
-    protected override string SolvePartTwo(string input)
+    private long GetStringDifference(string a, string b)
     {
-        return "Not yet implemented";
+        return a.ToCharArray()
+            .Where((aChar, index) => aChar != b.ElementAt(index))
+            .Count();
     }
 
     private static TestCase[] GetTestCases()
@@ -79,7 +84,7 @@ public class Day13 : BaseDay
 #####.##.
 #####.##.
 ..##..###
-#....#..#", "405", null),
+#....#..#", "405", "400"),
         ];
     }
 }
