@@ -22,16 +22,40 @@ public class Day14 : BaseDay
     {
         RockState initialState = GetRockLocations(input);
         RockState rolledState = TiltInDirection(initialState, new Point(0, -1));
-        long maxY = rolledState.GetMaxY();
-        return rolledState.roundRocks
-            .Select(p => maxY - p.Y + 1)
-            .Sum()
-            .ToString();
+        return CalculateLoad(rolledState).ToString();
     }
 
     protected override string SolvePartTwo(string input)
     {
-        return "Not yet implemented";
+        RockState rockState = GetRockLocations(input);
+        List<HashSet<Point>> previousRoundRocks = [rockState.roundRocks];
+
+        for (long cycle = 1; cycle <= 1000000000; cycle++)
+        {
+            rockState = TiltInDirection(rockState, new Point(0, -1));
+            rockState = TiltInDirection(rockState, new Point(-1, 0));
+            rockState = TiltInDirection(rockState, new Point(0, 1));
+            rockState = TiltInDirection(rockState, new Point(1, 0));
+
+            IEnumerable<int> previouslySeen = previousRoundRocks.Select((HashSet<Point> state, int index) => (state, index))
+                .Where(state => rockState.roundRocks.SetEquals(state.state))
+                .Select(state => state.index);
+
+            if (previouslySeen.Count() > 0)
+            {
+                long previous = previouslySeen.First();
+                long loopSize = cycle - previous;
+
+                long remainderAfterLoops = (1000000000 - cycle) % loopSize;
+
+                RockState finalState = new RockState(rockState.cubeRocks, previousRoundRocks[(int) (previous + remainderAfterLoops)]);
+
+                return CalculateLoad(finalState).ToString();
+            }
+            previousRoundRocks.Add(rockState.roundRocks);
+        }
+
+        return "No answer found";
     }
 
     private RockState GetRockLocations(string input)
@@ -55,6 +79,20 @@ public class Day14 : BaseDay
                     }
                 }
             });
+        long maxX = cubeRocks.Select(p => p.X).Max();
+        long maxY = cubeRocks.Select(p => p.Y).Max();
+
+        for (long x = 0; x <= maxX; x++)
+        {
+            cubeRocks.Add(new Point(x, -1));
+            cubeRocks.Add(new Point(x, maxY + 1));
+        }
+
+        for (long y = 0; y <= maxY; y++)
+        {
+            cubeRocks.Add(new Point(-1, y));
+            cubeRocks.Add(new Point(maxX + 1, y));
+        }
 
         return new RockState(cubeRocks, roundRocks);
     }
@@ -62,28 +100,44 @@ public class Day14 : BaseDay
     private RockState TiltInDirection(RockState initialState, Point direction)
     {
         HashSet<Point> newRoundRocks = new HashSet<Point>();
+        long maxX = initialState.GetMaxX();
         long maxY = initialState.GetMaxY();
 
-        for (long y = 0; y <= maxY; y++)
+        foreach (Point cubeRock in initialState.cubeRocks)
         {
-            IEnumerable<Point> pointsOnY = initialState.roundRocks.Where(p => p.Y == y);
-            foreach (Point point in pointsOnY)
+            int roundRockCount = 0;
+            Point nextPoint = cubeRock.GetVector(direction);
+            while (!initialState.cubeRocks.Contains(nextPoint) && nextPoint.X >= 0 && nextPoint.Y >= 0 && nextPoint.X <= maxX && nextPoint.Y <= maxY)
             {
-                Point newPoint = point;
-                while (true)
+                if (initialState.roundRocks.Contains(nextPoint))
                 {
-                    Point nextPoint = newPoint.AddPoint(direction);
-                    if (nextPoint.Y < 0 || initialState.cubeRocks.Contains(nextPoint) || newRoundRocks.Contains(nextPoint))
-                    {
-                        newRoundRocks.Add(newPoint);
-                        break;
-                    }
-                    newPoint = nextPoint;
+                    roundRockCount += 1;
                 }
+                nextPoint = nextPoint.GetVector(direction);
+            }
+
+            if (roundRockCount == 0)
+            {
+                continue;
+            }
+            
+            Point nextRoundRock = cubeRock.GetVector(direction);
+            for (long i = 0; i < roundRockCount; i++)
+            {
+                newRoundRocks.Add(nextRoundRock);
+                nextRoundRock = nextRoundRock.GetVector(direction);
             }
         }
 
         return new RockState(initialState.cubeRocks, newRoundRocks);
+    }
+
+    private long CalculateLoad(RockState rockState)
+    {
+        long maxY = rockState.GetMaxY();
+        return rockState.roundRocks
+            .Select(p => maxY - p.Y)
+            .Sum();
     }
 
     private static TestCase[] GetTestCases()
@@ -98,7 +152,7 @@ O.#..O.#.#
 ..O..#O..O
 .......O..
 #....###..
-#OO..#....", "136", null),
+#OO..#....", "136", "64"),
         ];
     }
 }
