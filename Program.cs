@@ -21,6 +21,7 @@ Dictionary<int, BaseDay> dayMap = new Dictionary<int, BaseDay>
     { 16, new Day16() },
     { 17, new Day17() },
     { 18, new Day18() },
+    { 19, new Day19() },
     // New days here
 };
 
@@ -29,7 +30,7 @@ Runner.Parts parts = Runner.Parts.BOTH;
 Runner.InputType inputType = Runner.InputType.BOTH;
 
 if (args.Length < 2 || !int.TryParse(args[1], out dayNumber)) {
-    dayNumber = 18;
+    dayNumber = 19;
     Console.WriteLine("Could not get day number from args, defaulting to ", dayNumber);
 }
 
