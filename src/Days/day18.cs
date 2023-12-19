@@ -3,7 +3,7 @@ namespace AdventOfCode;
 public class Day18 : BaseDay
 {
     public Day18() : base(18, GetTestCases())
-    {}
+    { }
 
     private static Dictionary<char, Point> DirectionVectorsFromChar = new Dictionary<char, Point>{
         { 'U', new Point(0, -1) },
@@ -37,11 +37,12 @@ public class Day18 : BaseDay
         Point currentLocation = new Point(0, 0);
         List<Point> edgeCorners = [currentLocation];
 
-        SplitStringToLines(input).ForEach((string line) => {
+        SplitStringToLines(input).ForEach((string line) =>
+        {
             (long distance, Point direction) = ParseDistanceAndDirection(line, partOne);
 
             Point edgeVector = new Point(direction.X * distance, direction.Y * distance);
-            
+
             currentLocation = currentLocation.AddPoint(edgeVector);
             edgeCorners.Add(currentLocation);
             edgePointCount += distance;
