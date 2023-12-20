@@ -125,7 +125,7 @@ public class Day20 : BaseDay
         long lowPulses = 0;
         for (int i = 0; i < 1000; i++)
         {
-            (long high, long low) = ProcessButtonPress(modules, i, false);
+            (long high, long low) = ProcessButtonPress(modules, i, []);
             highPulses += high;
             lowPulses += low;
         }
@@ -136,16 +136,19 @@ public class Day20 : BaseDay
     protected override string SolvePartTwo(string input)
     {
         Dictionary<string, Module> modules = ParseModules(input);
+        Dictionary<string, long> lastModuleCycles = new Dictionary<string, long>();
 
-        for (long i = 0; i < 20000; i++)
+        for (long i = 1; i < 20000; i++)
         {
-            ProcessButtonPress(modules, i, true);
+            ProcessButtonPress(modules, i, lastModuleCycles);
         }
 
-        return "Manually done";
+        return lastModuleCycles.Values
+            .Aggregate(CalculateLCM)
+            .ToString();
     }
 
-    private (long, long) ProcessButtonPress(Dictionary<string, Module> modules, long i, bool partTwo)
+    private (long, long) ProcessButtonPress(Dictionary<string, Module> modules, long i, Dictionary<string, long> lastModuleCycles)
     {
         long highPulses = 0;
         long lowPulses = 0;
@@ -156,11 +159,11 @@ public class Day20 : BaseDay
             Pulse nextPulse = unprocessedPulses.First();
             unprocessedPulses.RemoveAt(0);
 
-            HashSet<string> lastInputs = ["hz", "xm", "qh", "pv"];
+            HashSet<string> lastModules = ["hz", "xm", "qh", "pv"];
 
-            if (partTwo && lastInputs.Contains(nextPulse.source) && nextPulse.highPulse)
+            if (lastModules.Contains(nextPulse.source) && nextPulse.highPulse && !lastModuleCycles.ContainsKey(nextPulse.source))
             {
-                Console.WriteLine($"{i} {nextPulse}");
+                lastModuleCycles[nextPulse.source] = i;
             }
 
             if (nextPulse.highPulse)
@@ -211,6 +214,23 @@ public class Day20 : BaseDay
         }
 
         throw new Exception($"Cannot parse line {line}");
+    }
+
+    private long CalculateLCM(long a, long b)
+    {
+        if (b > a)
+        {
+            long temp = a;
+            a = b;
+            b = temp;
+        }
+
+        long result = a;
+        while (result % b != 0)
+        {
+            result += a;
+        }
+        return result;
     }
 
     private static TestCase[] GetTestCases()
