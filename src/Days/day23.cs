@@ -43,7 +43,7 @@ public class Day23 : BaseDay
     {
         Graph graph = BuildGraph(input, true);
 
-        return SolveV2(graph).ToString();
+        return FindLongestPathV2(graph).ToString();
     }
 
     private record State(HashSet<Point> Visited, Point Last)
@@ -54,7 +54,7 @@ public class Day23 : BaseDay
         }
     }
 
-    private long SolveV2(Graph graph)
+    private long FindLongestPathV2(Graph graph)
     {
         Dictionary<State, long> currentStates = [];
         currentStates[new State([new Point(1, 0)], new Point(1, 0))] = 0;
@@ -72,16 +72,16 @@ public class Day23 : BaseDay
                     .Where(path => !state.Visited.Contains(path.Key))
                     .ToDictionary();
 
-                if (connections.Keys.Any(p => p.Y == 22 || p.Y == 140))
+                if (connections.Keys.Any(p => p == graph.End))
                 {
-                    connections = connections.Where(p => p.Key.Y == 22 || p.Key.Y == 140).ToDictionary();
+                    connections = connections.Where(p => p.Key == graph.End).ToDictionary();
                 }
 
                 foreach (KeyValuePair<Point, long> connection in connections)
                 {
                     State newState = new State(state.Visited.Union([connection.Key]).ToHashSet(), connection.Key);
 
-                    if ((connection.Key.Y == 22 || connection.Key.Y == 140) && distance + connection.Value > longestPath)
+                    if ((connection.Key == graph.End) && distance + connection.Value > longestPath)
                     {
                         longestPath = Math.Max(longestPath, distance + connection.Value);
                     }
@@ -111,7 +111,7 @@ public class Day23 : BaseDay
         long maxX = paths.Keys.Select(p => p.X).Max();
         long maxY = paths.Keys.Select(p => p.Y).Max();
 
-        return new Graph(pathGraph, new Point(maxX - 1, maxY));
+        return new Graph(pathGraph, new Point(maxX, maxY));
     }
 
     private void BuildGraphFromPoint(Point previousNode, Point nextPoint, Dictionary<Point, char> paths, Dictionary<Point, Dictionary<Point, long>> pathGraph, bool partTwo)
